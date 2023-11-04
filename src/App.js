@@ -1,4 +1,5 @@
 import PokemonThumbnails from './PokemonThumbnails';
+import { useEffect } from 'react';
 
 function App() {
   // 仮でデータを配列にする
@@ -22,6 +23,16 @@ function App() {
       type: "くさ"
     },
   ]
+
+  // APIからデータを取得する
+  const url = "https://pokeapi.co/api/v2/pokemon/1";
+  useEffect(() => {
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+      })
+  }, [])
 
   return (
     <div className="app-container">
