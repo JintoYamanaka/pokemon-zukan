@@ -8,22 +8,15 @@ const PokemonThumbnails = ({ id, name, image, iconImage, type }) => {
   const [jpName, setJpName] = useState("");
   const [jpType, setJpType] = useState("");
 
-  const setJapaneseName = async () => {
-    const target = await pokemonJson.find(
-      (pokemon) => pokemon.en.toLowerCase() === name
-    );
-    target ? setJpName(target.ja) : setJpName("???");
-  };
-
-  const setJapaneseType = async () => {
-    const target = await pokemonTypeJson[type];
-    target ? setJpType(target) : setJpType(type);
-  };
-
   useEffect(() => {
-    setJapaneseName();
-    setJapaneseType();
-  }, []);
+    const targetPokemon = pokemonJson.find(
+      (pokemon) => pokemon.en.toLowerCase() === name.toLowerCase()
+    );
+    setJpName(targetPokemon ? targetPokemon.ja : "???");
+
+    const targetTypeName = pokemonTypeJson[type];
+    setJpType(targetTypeName ? targetTypeName : type);
+  }, [name, type]);
 
   return (
     <div className={style}>

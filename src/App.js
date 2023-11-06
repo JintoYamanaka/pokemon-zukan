@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import PokemonThumbnails from "./PokemonThumbnails";
 import Header from './Header'; 
 
@@ -9,7 +9,7 @@ function App() {
   const [url, setUrl] = useState("https://pokeapi.co/api/v2/pokemon?limit=20");
   const [isLoading, setIsLoading] = useState(false);
 
-  const getAllPokemons = async () => {
+  const getAllPokemons = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch(url);
@@ -21,7 +21,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [url]);
 
   const createPokemonObject = async (results) => {
     // 各ポケモンに対して非同期のAPIコールを準備
@@ -56,7 +56,7 @@ function App() {
 
   useEffect(() => {
     getAllPokemons();
-  }, []);
+  }, [getAllPokemons]);
 
   return (
     <div className="app-container">
