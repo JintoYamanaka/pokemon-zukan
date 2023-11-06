@@ -1,12 +1,12 @@
-import { useEffect, useState, useCallback } from "react";
-import PokemonThumbnails from "./PokemonThumbnails";
-import Header from './Header'; 
+import React, { useEffect, useState, useCallback } from 'react';
+import PokemonThumbnails from './PokemonThumbnails';
+import Header from './Header';
 
 function App() {
   const [allPokemons, setAllPokemons] = useState([]);
   // APIからデータを取得する
   // パラメータにlimitを設定し、20件取得する
-  const [url, setUrl] = useState("https://pokeapi.co/api/v2/pokemon?limit=20");
+  const [url, setUrl] = useState('https://pokeapi.co/api/v2/pokemon?limit=20');
   const [isLoading, setIsLoading] = useState(false);
 
   const getAllPokemons = useCallback(async () => {
@@ -17,7 +17,7 @@ function App() {
       setUrl(data.next);
       await createPokemonObject(data.results);
     } catch (error) {
-      console.error("Error fetching pokemon data: ", error);
+      console.error('Error fetching pokemon data: ', error);
     } finally {
       setIsLoading(false);
     }
@@ -38,16 +38,18 @@ function App() {
     const newPokemons = pokemonDatas.map((data) => ({
       id: data.id,
       name: data.name,
-      image: data.sprites.other["official-artwork"].front_default,
+      image: data.sprites.other['official-artwork'].front_default,
       iconImage: data.sprites.other.dream_world.front_default,
       type: data.types[0].type.name,
     }));
 
     setAllPokemons((currentList) => {
       // 重複を除外する
-      const pokemonsToAdd = newPokemons.filter((newPoke) => 
-        !currentList.some((currentPoke) => currentPoke.id === newPoke.id));
-  
+      const pokemonsToAdd = newPokemons.filter(
+        (newPoke) =>
+          !currentList.some((currentPoke) => currentPoke.id === newPoke.id)
+      );
+
       // 新しいリストと既存のリストを結合し、ソートする
       const updatedList = [...currentList, ...pokemonsToAdd];
       return updatedList.sort((a, b) => a.id - b.id);
