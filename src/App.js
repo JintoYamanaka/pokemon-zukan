@@ -35,7 +35,7 @@ function App() {
       .then((data) => {
         console.log(data.results);
         setAllPokemons(data.results);
-
+        createPokemonObject(data.results);
         // 次の20件をURLにセットする
         setUrl(data.next);
       });
@@ -56,7 +56,6 @@ function App() {
 
   useEffect(() => {
     getAllPokemons();
-    createPokemonObject();
   }, []);
 
   return (
