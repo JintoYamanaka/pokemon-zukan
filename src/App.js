@@ -8,39 +8,48 @@ function App() {
   const [url, setUrl] = useState("https://pokeapi.co/api/v2/pokemon?limit=20");
   const [isLoading, setIsLoading] = useState(false);
 
-  const getAllPokemons = () => {
+  const getAllPokemons = async () => {
     setIsLoading(true);
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        // 次の20件をURLにセットする
-        setUrl(data.next);
-        createPokemonObject(data.results);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      setUrl(data.next);
+      await createPokemonObject(data.results);
+    } catch (error) {
+      console.error("Error fetching pokemon data: ", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const createPokemonObject = (results) => {
-    results.forEach((pokemon) => {
-      const pokemonUrl = `https://pokeapi.co/api/v2/pokemon/${pokemon.name}`;
-      fetch(pokemonUrl)
-        .then((res) => res.json())
-        .then((data) => {
-          const _image = data.sprites.other["official-artwork"].front_default;
-          const _iconImage = data.sprites.other.dream_world.front_default;
-          const _type = data.types[0].type.name;
-          const newList = {
-            id: data.id,
-            name: data.name,
-            iconImage: _iconImage,
-            image: _image,
-            type: _type,
-          };
-          // 既存のデータを展開し、新しいデータを追加する
-          setAllPokemons((currentList) => [...currentList, newList]);
-        });
+  const createPokemonObject = async (results) => {
+    // 各ポケモンに対して非同期のAPIコールを準備
+    const pokemonDataPromises = results.map(async (pokemon) => {
+      const response = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${pokemon.name}`
+      );
+      return response.json();
+    });
+
+    // すべてのポケモンのデータが取得できたら実行
+    const pokemonDatas = await Promise.all(pokemonDataPromises);
+
+    const newPokemons = pokemonDatas.map((data) => ({
+      id: data.id,
+      name: data.name,
+      image: data.sprites.other["official-artwork"].front_default,
+      iconImage: data.sprites.other.dream_world.front_default,
+      type: data.types[0].type.name,
+    }));
+
+    setAllPokemons((currentList) => {
+      // 重複を除外する
+      const pokemonsToAdd = newPokemons.filter((newPoke) => 
+        !currentList.some((currentPoke) => currentPoke.id === newPoke.id));
+  
+      // 新しいリストと既存のリストを結合し、ソートする
+      const updatedList = [...currentList, ...pokemonsToAdd];
+      return updatedList.sort((a, b) => a.id - b.id);
     });
   };
 
