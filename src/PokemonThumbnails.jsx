@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import pokemonJson from "./pokemon.json";
-import pokemonTypeJson from "./pokemonType.json";
+import React, { useState, useEffect } from 'react';
+import pokemonJson from './pokemon.json';
+import pokemonTypeJson from './pokemonType.json';
 
 const PokemonThumbnails = ({ id, name, image, iconImage, type }) => {
   const style = `thumb-container ${type}`;
 
-  const [jpName, setJpName] = useState("");
-  const [jpType, setJpType] = useState("");
+  const [jpName, setJpName] = useState('');
+  const [jpType, setJpType] = useState('');
 
   useEffect(() => {
     const targetPokemon = pokemonJson.find(
       (pokemon) => pokemon.en.toLowerCase() === name.toLowerCase()
     );
-    setJpName(targetPokemon ? targetPokemon.ja : "???");
+    setJpName(targetPokemon ? targetPokemon.ja : '???');
 
     const targetTypeName = pokemonTypeJson[type];
     setJpType(targetTypeName ? targetTypeName : type);

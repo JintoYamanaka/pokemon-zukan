@@ -1,5 +1,5 @@
-import React from "react";
-import "./Header.css"; // CSSを適切にインポートしてください
+import React from 'react';
+import './Header.css'; // CSSを適切にインポートしてください
 
 const Header = () => {
   return (
