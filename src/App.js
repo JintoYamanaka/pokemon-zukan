@@ -29,10 +29,12 @@ function App() {
         .then((res) => res.json())
         .then((data) => {
           const _image = data.sprites.other["official-artwork"].front_default;
+          const _iconImage = data.sprites.other.dream_world.front_default;
           const _type = data.types[0].type.name;
           const newList = {
             id: data.id,
             name: data.name,
+            iconImage: _iconImage,
             image: _image,
             type: _type,
           };
@@ -56,6 +58,7 @@ function App() {
               id={pokemon.id}
               name={pokemon.name}
               image={pokemon.image}
+              iconImage={pokemon.iconImage}
               type={pokemon.type}
               key={index}
             />
