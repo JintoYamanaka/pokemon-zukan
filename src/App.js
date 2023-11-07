@@ -58,7 +58,7 @@ function App() {
 
   useEffect(() => {
     getAllPokemons();
-  }, [getAllPokemons]);
+  }, []);
 
   return (
     <div className="app-container">
