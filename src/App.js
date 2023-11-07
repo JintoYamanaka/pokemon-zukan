@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef} from 'react';
 import PokemonThumbnails from './PokemonThumbnails';
 import Header from './Header';
 
@@ -8,20 +8,21 @@ function App() {
   // パラメータにlimitを設定し、20件取得する
   const [url, setUrl] = useState('https://pokeapi.co/api/v2/pokemon?limit=20');
   const [isLoading, setIsLoading] = useState(false);
+  const nextUrl = useRef('https://pokeapi.co/api/v2/pokemon?limit=20');
 
   const getAllPokemons = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(url);
+      const response = await fetch(nextUrl.current);
       const data = await response.json();
-      setUrl(data.next);
+      nextUrl.current = data.next; // useRefを更新
       await createPokemonObject(data.results);
     } catch (error) {
       console.error('Error fetching pokemon data: ', error);
     } finally {
       setIsLoading(false);
     }
-  }, [url]);
+  }, []);
 
   const createPokemonObject = async (results) => {
     // 各ポケモンに対して非同期のAPIコールを準備
