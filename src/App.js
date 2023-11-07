@@ -1,86 +1,88 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import PokemonThumbnails from './PokemonThumbnails';
 import Header from './Header';
 
 function App() {
   const [allPokemons, setAllPokemons] = useState([]);
-  // APIからデータを取得する
-  // パラメータにlimitを設定し、20件取得する
-  const [url, setUrl] = useState('https://pokeapi.co/api/v2/pokemon?limit=20');
+  const [nextUrl, setNextUrl] = useState(
+    'https://pokeapi.co/api/v2/pokemon?limit=20'
+  );
   const [isLoading, setIsLoading] = useState(false);
 
-  const getAllPokemons = useCallback(async () => {
+  async function fetchPokemons(url) {
     setIsLoading(true);
     try {
       const response = await fetch(url);
       const data = await response.json();
-      setUrl(data.next);
+      setNextUrl(data.next);
       await createPokemonObject(data.results);
     } catch (error) {
       console.error('Error fetching pokemon data: ', error);
     } finally {
       setIsLoading(false);
     }
-  }, [url]);
+  }
 
   const createPokemonObject = async (results) => {
-    // 各ポケモンに対して非同期のAPIコールを準備
-    const pokemonDataPromises = results.map(async (pokemon) => {
-      const response = await fetch(
+    let newPokemons = [];
+    for (let pokemon of results) {
+      const res = await fetch(
         `https://pokeapi.co/api/v2/pokemon/${pokemon.name}`
       );
-      return response.json();
-    });
-
-    // すべてのポケモンのデータが取得できたら実行
-    const pokemonDatas = await Promise.all(pokemonDataPromises);
-
-    const newPokemons = pokemonDatas.map((data) => ({
-      id: data.id,
-      name: data.name,
-      image: data.sprites.other['official-artwork'].front_default,
-      iconImage: data.sprites.other.dream_world.front_default,
-      type: data.types[0].type.name,
-    }));
+      const data = await res.json();
+      newPokemons.push({
+        id: data.id,
+        name: data.name,
+        image: data.sprites.other['official-artwork'].front_default,
+        iconImage: data.sprites.other.dream_world.front_default,
+        type: data.types[0].type.name,
+      });
+    }
 
     setAllPokemons((currentList) => {
-      // 重複を除外する
       const pokemonsToAdd = newPokemons.filter(
         (newPoke) =>
           !currentList.some((currentPoke) => currentPoke.id === newPoke.id)
       );
 
-      // 新しいリストと既存のリストを結合し、ソートする
-      const updatedList = [...currentList, ...pokemonsToAdd];
-      return updatedList.sort((a, b) => a.id - b.id);
+      const updatedList = [...currentList, ...pokemonsToAdd].sort(
+        (a, b) => a.id - b.id
+      );
+      return updatedList;
     });
   };
 
   useEffect(() => {
-    getAllPokemons();
-  }, [getAllPokemons]);
+    fetchPokemons(nextUrl);
+  }, []);
+
+  const loadMorePokemons = () => {
+    if (!isLoading && nextUrl) {
+      fetchPokemons(nextUrl);
+    }
+  };
 
   return (
     <div className="app-container">
       <Header />
       <div className="pokemon-container">
         <div className="all-container">
-          {allPokemons.map((pokemon, index) => (
+          {allPokemons.map((pokemon) => (
             <PokemonThumbnails
               id={pokemon.id}
               name={pokemon.name}
               image={pokemon.image}
               iconImage={pokemon.iconImage}
               type={pokemon.type}
-              key={index}
+              key={pokemon.id}
             />
           ))}
         </div>
         {isLoading ? (
-          <div className="load-more">now loading...</div>
+          <div className="load-more">Loading...</div>
         ) : (
-          <button className="load-more" onClick={getAllPokemons}>
-            もっとみる！
+          <button className="load-more" onClick={loadMorePokemons}>
+            もっと見る！
           </button>
         )}
       </div>
